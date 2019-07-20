@@ -44,7 +44,7 @@ export default class app extends Component{
       }
 
     static navigationOptions = {
-        title:'Pedido',
+        title:'Entrega',
         headerTintColor: '#ffffff',
         headerStyle: {
           visible: false,
@@ -54,24 +54,14 @@ export default class app extends Component{
 
   renderItem = ({item})=> {
     return (
-      this.cont=this.cont+parseInt(item.tot),
-      this.ISV1=this.cont*0.15,
-      this.TOTAL1=this.cont+this.ISV1,
-      this.setState({
-        subtotal:this.cont,
-        ISV:this.ISV1,
-        total:this.TOTAL1
-      }),
      <View  style={styles.container} > 
      <View  style={styles.card}>
-     <Text  style={styles.cont} > {item.nomProveedor} </Text> 
-      <View style={{flex: 1, flexDirection: 'row'}}>
-          <Text  style={styles.cont} style={{flex:3}}> {item.nomProd} </Text> 
-          <AntDesign  onPress={this.delete.bind(this, item.codProd)} name='delete' size={32} style={{flex:3,textAlign:'right',margin:10, marginTop:5}}></AntDesign>
+     <View style={{flex: 1, flexDirection: 'row'}}>
+          <Text  style={styles.cont} > Tiene un pedido de {item.nomCliente} </Text> 
+          <AntDesign  onPress={() =>this.props.navigation.navigate('viewEntrega',{id:this.codProveedor,id2:item.codPedido})} name='right' size={32} style={{flex:3,textAlign:'right',margin:10, marginTop:5}}></AntDesign>
       </View>
-        <Text  style={styles.cont} style={{textAlign:'right',marginRight:10}} > Cant: {item.cant} </Text> 
-        <Text  style={styles.cont} style={{textAlign:'right',marginRight:10}} > Lps. {item.precioProd} </Text> 
-        <Text  style={styles.cont} style={{textAlign:'right',marginRight:10}} > Total: {item.tot} </Text> 
+      <View style={{flex: 1, flexDirection: 'row'}}>
+      </View>
       </View>
      </View> 
      
@@ -111,17 +101,21 @@ export default class app extends Component{
 }
 
   renderItem2 = ({item})=> {
- 
+    let myArray3={
+      codProv:item.codProveedor
+    }
+    this.codProveedor=item.codProveedor;
+    AsyncStorage.setItem('myArray3',
+    JSON.stringify(myArray3));
   }
 
   componentDidMount=async()=>{
-      let myArray2 = await AsyncStorage.getItem('myArray2');
-      let d = JSON.parse(myArray2);
-       const codCliente2=d.cod;
-       this.codCliente=d.cod;
+      let myArray = await AsyncStorage.getItem('myArray3');
+      let d = JSON.parse(myArray);
+       this.codProveedor=d.codProv;
        this.setState({ show1: true });
-       {
-        fetch('http://sustento.000webhostapp.com/obtenerCar.php',{
+      {
+        fetch('http://sustento.000webhostapp.com/obtenerEntrega.php',{
           method:'post',
           header:{
               'Accept': 'application/json',
@@ -129,7 +123,7 @@ export default class app extends Component{
           },
           body:JSON.stringify({
               // we will pass our input data to server
-              codCliente: codCliente2
+              codProv: this.codProveedor
           })
           
       })
@@ -150,6 +144,7 @@ export default class app extends Component{
                      console.log(error);
                    })  
       }
+        
            
   }
   ShowHideComponent = () => {
@@ -229,7 +224,13 @@ export default class app extends Component{
   render() {
      return (
        <View style={styles.MainContainer}> 
-       {this.state.loading?(
+
+       <FlatList 
+            data={this.state.dataSource2}
+            renderItem={this.renderItem2}
+            keyExtractor={(item, index) => index.toString()}
+            />
+        {this.state.loading?(
           <ActivityIndicator size={"large"} color={"green"}/>
        ):
        (
@@ -239,27 +240,6 @@ export default class app extends Component{
             keyExtractor={(item, index) => index.toString()}
             />
        )}
-            <View style={{paddingBottom:110}}>
-              <View style={{flexDirection: 'row',backgroundColor: '#c0e359',justifyContent :'flex-end', paddingRight:8}}>
-                  <Text onPress={this.login}>Subtotal: </Text>
-                  <Text onPress={this.login} >{this.state.subtotal}</Text>
-              </View>
-              <View style={{flexDirection: 'row',backgroundColor: '#c0e359',justifyContent :'flex-end', paddingRight:8}}>
-                  <Text onPress={this.login}>ISV: </Text>
-                  <Text onPress={this.login}>{this.state.ISV}</Text>
-              </View>
-              <View style={{flexDirection: 'row',backgroundColor: '#c0e359',justifyContent :'flex-end', paddingRight:8}}>
-                  <Text onPress={this.login}>TOTAL: </Text>
-                  <Text onPress={this.login}>{this.state.total}</Text>
-              </View>
-              
-              <View style={styles.button2}>
-                <TouchableOpacity style={styles.button} onPress={this.login}>
-                    <Text style={styles.buttonText} onPress={this.email}>Pedido</Text>
-                </TouchableOpacity>  
-            </View>
-
-            </View>
 
        </View>
         )
@@ -270,7 +250,6 @@ export default class app extends Component{
 const styles = StyleSheet.create({
  
     MainContainer:{
-      marginBottom: Platform.OS === 'android' ? 95:90,
 
     },
     container :{

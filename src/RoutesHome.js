@@ -9,23 +9,45 @@ import{
 
 import HomeScreen from './pages/Home'
 import PedidoScreen from './pages/Pedido'
-import {Ionicons,Entypo} from '@expo/vector-icons';
+import profile from './pages/profile'
+import {Ionicons,Entypo,AntDesign,Feather} from '@expo/vector-icons';
 import car from './images/car.png'
-
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 
 const AppNavigator=createMaterialTopTabNavigator({
     Home:{
         screen:HomeScreen,
+        navigationOptions: {
+            tabBarLabel:"Productos",
+            tabBarIcon: ({ tintColor }) => (
+              <AntDesign name="home" size={20} color="#000"/>
+            ),
+          },
     },
     Donaciones:{
-        screen:PedidoScreen
+        screen:PedidoScreen,
+        navigationOptions: {
+            tabBarLabel:"Donaciones",
+            tabBarIcon: ({ tintColor }) => (
+              <Feather name="gift" size={20} color="#000"/>
+            ),
+          },
     },
+    profile:{
+        screen:profile,
+        navigationOptions: {
+            tabBarLabel:"Perfil",
+            tabBarIcon: ({ tintColor }) => (
+              <AntDesign name="user" size={20} color="#000"/>
+            ),
+          },
+          
+    }
 },
 
 {
     navigationOptions:({navigation})=>({ 
-        headerLeft: null,
          
         headerTitleStyle: { 
             flex:1,
@@ -35,14 +57,7 @@ const AppNavigator=createMaterialTopTabNavigator({
         headerRight: (
             
             <View style={{padding:5}}>
-            <View style={{
-                position:'absolute',height:20,width:20,
-                borderRadius:15,backgroundColor:'rgba(95,197,123,0.8)',
-                right:30,bottom:20,alignItems:'center', justifyContent:'center', zIndex:2000
-                }}>
-                <Text onPress={() => navigation.navigate('Car')}>0</Text>
-            </View>
-            <Entypo onPress={() => navigation.navigate('Car')} name='shopping-cart' size={32} style={{marginRight:10}}></Entypo>
+            <AntDesign onPress={() => navigation.navigate('Car')} name='shoppingcart' size={35} style={{marginRight:10}}></AntDesign>
             </View>
     
           ),
@@ -57,7 +72,8 @@ const AppNavigator=createMaterialTopTabNavigator({
         inactiveTintColor: '#666',
         style:{
             backgroundColor:'#c0e359'
-        }
+        },
+        showIcon:true,
     }
 },
 

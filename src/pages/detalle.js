@@ -8,19 +8,19 @@ import {
   AppRegistry,
   ActivityIndicator,
   ListView,
-  FlatList,
-  Image
+  FlatList
 } from 'react-native';
 
 import Logo from '../components/Logo';
 import Form from '../components/Form';
+import Image from 'react-native-image-progress';  
 
 export default class detalle extends Component {
   
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: true
+      loading: true
     }
   }
 GetItem (names) {
@@ -31,19 +31,24 @@ GetItem (names) {
 
   static navigationOptions = {
     title:'Detalle',
-    activeTintColor:'black',
+    headerTintColor: '#ffffff',
+    headerStyle: {
+      backgroundColor: '#c0e359',
+    },
+
   }
  
  
   renderItem = ({item})=> {
     return (
      <View  style={styles.container} > 
-         <Image style={styles.cardImage} source={{ uri: 'http://sustento.000webhostapp.com/'+item.imagenProd+'' }} /> 
-         <Text  style={styles.cont} > {item.nomProd} </Text> 
-         <Text  style={styles.cont} > {item.descProd} </Text> 
-         <Text  style={styles.cont} > Stock: {item.cantProd} </Text> 
-        <Text  style={styles.cont} > Lps. {item.precioProd} </Text>
-        <Text  style={styles.cont} > {item.nomProveedor} </Text> 
+         <Text  style={styles.cont} style={{marginRight:5,textAlign:'right',fontSize:20}}>{item.nomProveedor} </Text> 
+         <Image style={styles.cardImage} source={{ uri: 'http://sustento.000webhostapp.com/'+item.imagenProd+'' }}indicator='bar' /> 
+         <Text  style={styles.cont} style={{marginLeft:5, marginTop:5,fontSize:20}} >{item.nomProd} </Text> 
+         <Text  style={styles.cont} style={{marginLeft:5,fontSize:20}}>{item.descProd} </Text> 
+         <Text  style={styles.cont} style={{marginRight:5,textAlign:'right',fontSize:20}}> Disponible: {item.cantProd} und </Text> 
+        <Text  style={styles.cont} style={{marginRight:5,textAlign:'right',fontSize:20}}> Normal: L.{item.precioProd} </Text>
+        <Text  style={styles.cont} style={{marginRight:5,textAlign:'right',fontSize:20, color: '#26d30e'}} > Oferta: L.{item.precioOfProd} </Text>
      </View> 
      
       )
@@ -65,7 +70,8 @@ GetItem (names) {
         .then((response) => response.json())
         .then((responseJson)=>{
             this.setState({
-                dataSource : responseJson
+                dataSource : responseJson,
+                loading:false
               })
         })
         .catch((error)=>{
@@ -81,11 +87,15 @@ GetItem (names) {
   render() {
      return (
        <View style={styles.MainContainer}> 
+       {this.state.loading?(
+          <ActivityIndicator size={"large"} color={"green"}/>
+       ):
+       (
            <FlatList 
             data={this.state.dataSource}
             renderItem={this.renderItem}
             keyExtractor={(item, index) => index.toString()}
-            />
+       />)}
        </View>
         )
 
@@ -95,8 +105,7 @@ GetItem (names) {
 const styles = StyleSheet.create({
  
 container :{
- marginTop:20,
- backgroundColor: '#F5FCFF'
+ backgroundColor: '#fff'
 },
 
 card:{
@@ -104,7 +113,7 @@ card:{
 },
 cardImage:{
   width:'100%',
-  height:200,
+  height:300,
   resizeMode:'cover'
 },
    rowViewContainer: {

@@ -9,11 +9,14 @@ import {
   ActivityIndicator,
   ListView,
   FlatList,
-  Image,
   TextInput,
   AsyncStorage,
-  Button
+  Button,
+  ToastAndroid
 } from 'react-native';
+
+import Image from 'react-native-image-progress';  
+import Toast from 'react-native-root-toast'
 
 import {Ionicons,EvilIcons, Entypo} from '@expo/vector-icons';
 
@@ -23,7 +26,7 @@ import{
 
 import Logo from '../components/Logo';
 import Form from '../components/Form';
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, FontAwesome} from '@expo/vector-icons';
 
 export default class Home extends Component {
   
@@ -33,8 +36,10 @@ export default class Home extends Component {
     this.arrayholder2 = [];
     this.codProd;
     this.codCliente;
+    this.long='',
+    this.lat='',
     this.state = {
-      isLoading: true,
+      loading: true,
       error: null,   
       search:'',
 
@@ -42,6 +47,8 @@ export default class Home extends Component {
       
     }
   }
+
+
 GetItem (names) {
    
   alert(names);
@@ -59,15 +66,19 @@ GetItem (names) {
     return (
      <View  style={styles.container} > 
      <View  style={styles.card}>
-     <Text  style={styles.cont} > {item.nomProveedor} </Text> 
+     <View style={{flex: 1, flexDirection: 'row'}}>
+          <Text  style={styles.cont} style={{flex:3, fontSize:16}}> {item.nomProveedor} </Text>
+          <FontAwesome onPress={() =>this.props.navigation.navigate('mapa',{latitud:parseFloat(item.latitud),longitud:parseFloat(item.longitud)})} name='map-marker' size={32} style={{flex:3,textAlign:'right',margin:10, marginTop:5}}></FontAwesome>
+      </View>
       <TouchableOpacity onPress={() =>this.props.navigation.navigate('Detalle',{id:item.codProd})}>
-         <Image style={styles.cardImage} source={{ uri: 'http://sustento.000webhostapp.com/'+item.imagenProd+'' }} /> 
+         <Image style={styles.cardImage} source={{ uri: 'http://sustento.000webhostapp.com/'+item.imagenProd+'' }} indicator='bar' /> 
       </TouchableOpacity>
       <View style={{flex: 1, flexDirection: 'row'}}>
-          <Text  style={styles.cont} style={{flex:3}}> {item.nomProd} </Text> 
+          <Text  style={styles.cont} style={{flex:3,fontSize:16}}> {item.nomProd} </Text> 
           <Entypo  onPress={this.register.bind(this, item.codProd)} name='add-to-list' size={32} style={{flex:3,textAlign:'right',margin:10, marginTop:5}}></Entypo>
       </View>
-        <Text  style={styles.cont} style={{textAlign:'right',marginRight:10}} > Lps. {item.precioProd} </Text>  
+        <Text  style={styles.cont} style={{textAlign:'right',marginRight:10}} >Normal: L. {item.precioProd} </Text>  
+        <Text  style={styles.cont} style={{textAlign:'right',marginRight:10,color: '#26d30e'}} >Oferta: L. {item.precioOfProd} </Text>  
 
       </View>
      
@@ -96,7 +107,7 @@ GetItem (names) {
     .then((responseJson)=>{
         if(responseJson === 'Data Matched')
         {
-          alert('Agregado')
+          Toast.show('Agregado',{duration:Toast.durations.SHORT, backgroundColor:'rgb(52, 52, 52)'});
 
         }
         else{
@@ -110,7 +121,8 @@ GetItem (names) {
 
   renderItem2 = ({item})=> {
     let myArray2={
-      cod:item.codCliente
+      cod:item.codCliente,
+      nom:item.nomCliente
     }
     this.codCliente=item.codCliente;
     AsyncStorage.setItem('myArray2',
@@ -118,16 +130,31 @@ GetItem (names) {
   }
 
   componentDidMount=async()=>{
+    let myArray3 = await AsyncStorage.getItem('myArray3');
+    let e = JSON.parse(myArray3);
+    this.long=e.longitud;
+    this.lat=e.latitud;
       let myArray = await AsyncStorage.getItem('myArray');
       let d = JSON.parse(myArray);
        const UserEmail=d.UserEmail;
        this.setState({ show1: true });
        {const url = "http://sustento.000webhostapp.com/products.php";
-       fetch(url)
+       fetch(url,{
+        method:'post',
+        header:{
+            'Accept': 'application/json',
+            'Content-type': 'application/json'
+        },
+        body:JSON.stringify({
+            lon:this.long,
+            lat:this.lat,
+        })
+       })
        .then((response)=>response.json())
                  .then((responseJson)=> {
                    this.setState({
-                     dataSource : responseJson
+                     dataSource : responseJson,
+                     loading:false
                    },
                    function() {
                     this.arrayholder = responseJson;
@@ -213,29 +240,34 @@ GetItem (names) {
      return (
        <View style={styles.MainContainer}> 
        {this.state.show1 ? (
-            <View style={{alignItems:'flex-end', margin:5}} >
+            <View style={{alignItems:'flex-end', margin:5, marginBottom:0}} >
                 <Icon type='evilicon' name='search' onPress={this.ShowHideComponent}></Icon>
             </View>
            ) : null}
        {this.state.show ? (
            <SearchBar
-           containerStyle={{backgroundColor:"#fff",borderWidth: 0, shadowColor: 'white', //no effect
+           containerStyle={{backgroundColor:"#fff",marginBottom:0,borderWidth: 0, shadowColor: 'white', //no effect
            borderBottomColor: 'transparent',
            borderTopColor: 'transparent'}}
            inputContainerStyle={{backgroundColor:"#f4f4f4"}}
           round
           onChangeText={text => this.filterSearch(text)}
           onClear={this.ShowHideComponent }
-          placeholder="Type Here..."
+          placeholder="Busque aqui"
           value={this.state.search}
           showOnLoad
           />
            ) : null}
+           {this.state.loading?(
+          <ActivityIndicator size={"large"} color={"green"}/>
+       ):
+       (
            <FlatList 
             data={this.state.dataSource}
             renderItem={this.renderItem}
             keyExtractor={(item, index) => index.toString()}
             />
+            )}
             <FlatList 
             data={this.state.dataSource2}
             renderItem={this.renderItem2}
@@ -254,7 +286,8 @@ MainContainer:{
 },
 container :{
  backgroundColor: '#fff',
- marginTop:10,
+ marginTop:5,
+ fontSize:20,
 },
 
 card:{
@@ -278,7 +311,7 @@ textInput:{
 },
 cardImage:{
   width:'100%',
-  height:200,
+  height:300,
   resizeMode:'cover'
 },
    rowViewContainer: {

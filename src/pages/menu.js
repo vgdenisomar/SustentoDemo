@@ -44,7 +44,7 @@ export default class app extends Component{
       }
 
     static navigationOptions = {
-        title:'Pedido',
+        title:'Menu',
         headerTintColor: '#ffffff',
         headerStyle: {
           visible: false,
@@ -54,17 +54,9 @@ export default class app extends Component{
 
   renderItem = ({item})=> {
     return (
-      this.cont=this.cont+parseInt(item.tot),
-      this.ISV1=this.cont*0.15,
-      this.TOTAL1=this.cont+this.ISV1,
-      this.setState({
-        subtotal:this.cont,
-        ISV:this.ISV1,
-        total:this.TOTAL1
-      }),
      <View  style={styles.container} > 
      <View  style={styles.card}>
-     <Text  style={styles.cont} > {item.nomProveedor} </Text> 
+     <Text  style={styles.cont} > {item.codCliente} </Text> 
       <View style={{flex: 1, flexDirection: 'row'}}>
           <Text  style={styles.cont} style={{flex:3}}> {item.nomProd} </Text> 
           <AntDesign  onPress={this.delete.bind(this, item.codProd)} name='delete' size={32} style={{flex:3,textAlign:'right',margin:10, marginTop:5}}></AntDesign>
@@ -111,17 +103,21 @@ export default class app extends Component{
 }
 
   renderItem2 = ({item})=> {
- 
+    let myArray3={
+      codProv:item.codProveedor
+    }
+    this.codProveedor=item.codProveedor;
+    AsyncStorage.setItem('myArray3',
+    JSON.stringify(myArray3));
   }
 
   componentDidMount=async()=>{
-      let myArray2 = await AsyncStorage.getItem('myArray2');
-      let d = JSON.parse(myArray2);
-       const codCliente2=d.cod;
-       this.codCliente=d.cod;
+      let myArray = await AsyncStorage.getItem('myArray');
+      let d = JSON.parse(myArray);
+       const UserEmail=d.UserEmail;
        this.setState({ show1: true });
-       {
-        fetch('http://sustento.000webhostapp.com/obtenerCar.php',{
+      {
+        fetch('http://sustento.000webhostapp.com/usuario1.php',{
           method:'post',
           header:{
               'Accept': 'application/json',
@@ -129,7 +125,7 @@ export default class app extends Component{
           },
           body:JSON.stringify({
               // we will pass our input data to server
-              codCliente: codCliente2
+              email: UserEmail
           })
           
       })
@@ -137,11 +133,10 @@ export default class app extends Component{
       .then((responseJson)=>{
                     this.setState(
                       {
-                        dataSource : responseJson,
-                        loading:false
+                        dataSource2 : responseJson
                       },
                     function() {
-                     this.arrayholder = responseJson;
+                     this.arrayholder2 = responseJson;
                    }
                     )
                    })
@@ -150,6 +145,7 @@ export default class app extends Component{
                      console.log(error);
                    })  
       }
+        
            
   }
   ShowHideComponent = () => {
@@ -228,40 +224,20 @@ export default class app extends Component{
 
   render() {
      return (
-       <View style={styles.MainContainer}> 
-       {this.state.loading?(
-          <ActivityIndicator size={"large"} color={"green"}/>
-       ):
-       (
-           <FlatList 
-            data={this.state.dataSource}
-            renderItem={this.renderItem}
+       <View style={styles.container}> 
+					<TouchableOpacity onPress={() => this.props.navigation.navigate('orden')} style={styles.button}>
+            <Text style={styles.buttonText}>Pedidos</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('entrega')} style={styles.button2}>
+            <Text style={styles.buttonText}>Entregar</Text>
+            </TouchableOpacity>
+          <FlatList 
+            data={this.state.dataSource2}
+            renderItem={this.renderItem2}
             keyExtractor={(item, index) => index.toString()}
             />
-       )}
-            <View style={{paddingBottom:110}}>
-              <View style={{flexDirection: 'row',backgroundColor: '#c0e359',justifyContent :'flex-end', paddingRight:8}}>
-                  <Text onPress={this.login}>Subtotal: </Text>
-                  <Text onPress={this.login} >{this.state.subtotal}</Text>
-              </View>
-              <View style={{flexDirection: 'row',backgroundColor: '#c0e359',justifyContent :'flex-end', paddingRight:8}}>
-                  <Text onPress={this.login}>ISV: </Text>
-                  <Text onPress={this.login}>{this.state.ISV}</Text>
-              </View>
-              <View style={{flexDirection: 'row',backgroundColor: '#c0e359',justifyContent :'flex-end', paddingRight:8}}>
-                  <Text onPress={this.login}>TOTAL: </Text>
-                  <Text onPress={this.login}>{this.state.total}</Text>
-              </View>
-              
-              <View style={styles.button2}>
-                <TouchableOpacity style={styles.button} onPress={this.login}>
-                    <Text style={styles.buttonText} onPress={this.email}>Pedido</Text>
-                </TouchableOpacity>  
-            </View>
-
-            </View>
-
        </View>
+
         )
 
   }
@@ -269,67 +245,60 @@ export default class app extends Component{
 
 const styles = StyleSheet.create({
  
-    MainContainer:{
-      marginBottom: Platform.OS === 'android' ? 95:90,
+  container : {
+    marginTop:15,
+    backgroundColor:'#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex:1
 
-    },
-    container :{
-     backgroundColor: '#fff',
-     marginTop:10,
-    },
-    button: {
-      width:150,
-      backgroundColor:'#327ccf',
-       borderRadius: 25,
-        marginVertical: 5,
-        paddingVertical: 5
-    },
-    button2:{
-      backgroundColor: '#c0e359',
-      alignItems:'center',
-    },
-    buttonText: {
-      fontSize:16,
-      fontWeight:'500',
-      color:'#fff',
-      textAlign:'center'
-    },
-    card:{
-      backgroundColor:'#fff',
-      marginBottom:10,
-      marginLeft:'2%',
-      width:'96%',
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 6,
-    },
-    shadowOpacity: 0.37,
-    shadowRadius: 7.49,
-    
-    elevation: 12,
-    },
-    
-    textInput:{
-      backgroundColor:"#fff"
-    },
-    cardImage:{
-      width:'100%',
-      height:200,
-      resizeMode:'cover'
-    },
-       rowViewContainer: {
-            paddingRight: 10,
-            paddingTop: 10,
-            paddingBottom: 10,
-            backgroundColor:'#fff',
-            color:'#000',
-            
-          },
-    
-          cont:{
-            color: '#000'
-          }
+  },
+  signupTextCont : {
+  	flexGrow: 1,
+    alignItems:'center',
+    justifyContent :'center',
+    paddingVertical:16,
+    flexDirection:'row'
+  },
+  signupText: {
+  	color:'#001',
+  	fontSize:16
+  },
+  signupButton: {
+  	color:'#000',
+  	fontSize:16,
+  	fontWeight:'500'
+  },
+  inputBox: {
+    width:300,
+    backgroundColor:'#0001',
+    borderRadius: 25,
+    paddingHorizontal:16,
+    fontSize:16,
+    color:'#000',
+    height:40,
+    marginVertical: 10
+  },
+  button: {
+    width:300,
+    backgroundColor:'#eebf1e',
+     borderRadius: 15,
+      marginVertical: 10,
+      paddingVertical: 13
+  },
+  button2: {
+    width:300,
+    backgroundColor:'#1e86ee',
+     borderRadius: 15,
+      marginVertical: 10,
+      paddingVertical: 13
+  },
+  buttonText: {
+    fontSize:16,
+    fontWeight:'500',
+    color:'#fff',
+    textAlign:'center'
+  }
      
     })
 AppRegistry.registerComponent('Pedido', () => Myproject);

@@ -6,119 +6,61 @@ import {
   StatusBar,
   TouchableOpacity,
   AsyncStorage,
-  Image,
   TextInput,
   AppRegistry,
   ActivityIndicator,
+  Image,
   KeyboardAvoidingView
 } from 'react-native';
 
 import Logo from '../components/Logo';
 import Form from '../components/Form';
 
-import { Ionicons, EvilIcons, Entypo, AntDesign,MaterialCommunityIcons,MaterialIcons} from '@expo/vector-icons';
 
-export default class Login extends Component {
+import { Ionicons, EvilIcons, Entypo, AntDesign,MaterialCommunityIcons,MaterialIcons} from '@expo/vector-icons';
+export default class user extends Component {
 
   constructor(props) {
-    super(props);
-    this.long = '',
-      this.lat = '',
-      this.state = {
-        longitud: '',
-        latitud: '',
-        loading: false,
-        email: '',
-        pass: '',
-        UserEmail: '',
-        UserPassword: ''
-      }
-  }
-
-  componentWillMount() {
-    const { setParams } = this.props.navigation;
-    setParams({ websiteURL: this.props.websiteURL });
-  }
-
-  static navigationOptions = ({ navigation }) => {
-
-    const { state } = navigation;
-
-    if (state.params != undefined) {
-      return {
-        title: 'Login',
-        headerTintColor: '#ffffff',
-        headerStyle: {
-          visible: false,
-          backgroundColor: '#c0e359',
-        },
-        headerRight:
-          <View style={{ padding: 5 }}>
-            <AntDesign onPress={() => navigation.navigate('user')} name='user' size={35} style={{ marginRight: 10 }}></AntDesign>
-          </View>
-      }
+    super(props)
+    this.state = {
+      loading: false,
+      email: '',
+      pass: '',
+      UserEmail: '',
+      UserPassword: ''
     }
+  }
 
-  };
+  static navigationOptions = {
+    title: 'Usuarios',
+    headerTintColor: '#ffffff',
+    headerStyle: {
+      backgroundColor: '#c0e359',
+    },
 
+  }
   componentDidMount = async () => {
     let myArray = await AsyncStorage.getItem('myArray');
     let d = JSON.parse(myArray);
     this.setState({
       UserEmail: d.UserEmail,
-      UserPassword: d.UserPassword,
+      UserPassword: d.UserPassword
     })
-    let myArray3 = await AsyncStorage.getItem('myArray3');
-    let e = JSON.parse(myArray3);
-    this.lat = e.latitud;
-    this.long = e.longitud;
   }
   login = () => {
-    let error = '';
-    if (!this.state.UserEmail.length > 0) {
-      alert('Llene todos los campos');
-      return;
-    }
-    if (!this.state.UserPassword.length > 0) {
-      alert('Llene todos los campos');
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        this.lat = position.coords.latitude;
-        this.long = position.coords.longitude;
-        this.setState({
-          latitud: position.coords.latitude,
-          longitud: position.coords.longitude,
-          error: null,
-        });
-        console.log(this.lat)
-      },
-      (error) => this.setState({ error: error.message }),
-      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
-    );
     this.setState(
       {
         loading: true
       }
     )
-    const { UserEmail, UserPassword, longitud, latitud } = this.state;
+    const { UserEmail, UserPassword } = this.state;
     let myArray = {
       UserEmail: UserEmail,
-      UserPassword: UserPassword,
-      longitud: this.long,
-      latitud: this.lat,
+      UserPassword: UserPassword
     }
     AsyncStorage.setItem('myArray',
       JSON.stringify(myArray));
-
-    let myArray3 = {
-      longitud: this.long,
-      latitud: this.lat,
-    }
-    AsyncStorage.setItem('myArray3',
-      JSON.stringify(myArray3));
-    fetch('http://sustento.000webhostapp.com/sesion.php', {
+    fetch('http://sustento.000webhostapp.com/loginPro.php', {
       method: 'post',
       header: {
         'Accept': 'application/json',
@@ -127,9 +69,7 @@ export default class Login extends Component {
       body: JSON.stringify({
         // we will pass our input data to server
         email: UserEmail,
-        password: UserPassword,
-        lon: this.long,
-        lat: this.lat
+        password: UserPassword
       })
 
     })
@@ -141,8 +81,7 @@ export default class Login extends Component {
               loading: false
             }
           )
-          //Then open Profile activity and send user email to profile activity.
-          this.props.navigation.navigate('Home');
+          this.props.navigation.navigate('menu');
 
         }
         else {
@@ -155,7 +94,7 @@ export default class Login extends Component {
         }
       })
       .catch((error) => {
-        console.error(error)
+        console.error(error);
       });
   }
   render() {
@@ -164,18 +103,17 @@ export default class Login extends Component {
         <KeyboardAvoidingView
           style={styles.container}
           behavior='position'
-          keyboardVerticalOffset={10}>
-            <View style={styles.container2}>
+          keyboardVerticalOffset={-20}>
+                   <View style={styles.container2}>
             <Image style={{ width: 150, height: 150, marginBottom: 25, textAlign: 'center' }}
             source={require('../images/logoSustento.jpeg')} />
             </View>
-         
           {this.state.loading ? (
             <ActivityIndicator size={"large"} color={"green"} />
           ) :
             (
               <View style={styles.inputContainer}>
-              <MaterialCommunityIcons style={styles.inputIcon} name='email-outline' size={35} style={{marginRight:10}}></MaterialCommunityIcons>
+              <AntDesign style={styles.inputIcon} name='user' size={35} style={{marginRight:10}}></AntDesign>
               <TextInput style={styles.inputBox} 
               onChangeText={UserEmail=>this.setState({UserEmail})}
               underlineColorAndroid='rgba(0,0,0,0)' 
@@ -204,21 +142,15 @@ export default class Login extends Component {
               />
               </View>
             )}
-
-          {this.state.loading ? (
-            <Text></Text>
-          ) :
-            (
-              <TouchableOpacity style={styles.button} onPress={this.login}>
-                <Text style={styles.buttonText} onPress={this.login}>Ingresar</Text>
-              </TouchableOpacity>
-            )}
-        </KeyboardAvoidingView>
-        <View><Text></Text></View>
-        <View style={styles.signupTextCont}>
-          <Text style={styles.signupText}>No tienes cuenta aún?</Text>
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('Signup')}><Text style={styles.signupButton}>Registrate</Text></TouchableOpacity>
-        </View>
+        {this.state.loading ? (
+          <Text></Text>
+        ) :
+          (
+            <TouchableOpacity style={styles.button} onPress={this.login}>
+              <Text style={styles.buttonText} onPress={this.login}>Acceder</Text>
+            </TouchableOpacity>
+          )}
+                  </KeyboardAvoidingView>
       </View>
     )
   }
@@ -230,16 +162,22 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center'
+
   },
   container2: {
     justifyContent: 'center',
     alignItems: 'center'
   },
   signupTextCont: {
-    alignItems: 'flex-end',
+    flexGrow: 1,
+    alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 16,
     flexDirection: 'row'
+  },
+  signupText: {
+    color: '#001',
+    fontSize: 16
   },
   inputContainer: {
 
@@ -258,8 +196,7 @@ const styles = StyleSheet.create({
   signupButton: {
     color: '#000',
     fontSize: 16,
-    fontWeight: '500',
-    marginLeft:5
+    fontWeight: '500'
   },
   inputBox: {
     width: 300,
@@ -286,4 +223,4 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   }
 });
-AppRegistry.registerComponent('Login', () => Myproject);
+AppRegistry.registerComponent('user', () => Myproject);
