@@ -207,16 +207,15 @@ export default class app extends Component{
     .then((responseJson)=>{
         if(responseJson === 'Data Matched')
         {
-          Toast.show('Eliminado',{duration:Toast.durations.SHORT, backgroundColor:'rgb(52, 52, 52)'});
-
+          Toast.show('Enviado',{duration:Toast.durations.SHORT, backgroundColor:'rgb(52, 52, 52)'});
+          this.props.navigation.navigate('index')
         }
         else{
         alert(responseJson);
         }
     })
     .catch((error)=>{
-      Toast.show('Enviado',{duration:Toast.durations.SHORT, backgroundColor:'rgb(52, 52, 52)'});
-      this.props.navigation.navigate('index')
+      alert(error);
 });
     }
 }

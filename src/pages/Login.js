@@ -161,10 +161,6 @@ export default class Login extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <KeyboardAvoidingView
-          style={styles.container}
-          behavior='position'
-          keyboardVerticalOffset={10}>
             <View style={styles.container2}>
             <Image style={{ width: 150, height: 150, marginBottom: 25, textAlign: 'center' }}
             source={require('../images/logoSustento.jpeg')} />
@@ -213,7 +209,6 @@ export default class Login extends Component {
                 <Text style={styles.buttonText} onPress={this.login}>Ingresar</Text>
               </TouchableOpacity>
             )}
-        </KeyboardAvoidingView>
         <View><Text></Text></View>
         <View style={styles.signupTextCont}>
           <Text style={styles.signupText}>No tienes cuenta aún?</Text>

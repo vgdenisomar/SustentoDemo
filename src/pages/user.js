@@ -100,10 +100,6 @@ export default class user extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <KeyboardAvoidingView
-          style={styles.container}
-          behavior='position'
-          keyboardVerticalOffset={-20}>
                    <View style={styles.container2}>
             <Image style={{ width: 150, height: 150, marginBottom: 25, textAlign: 'center' }}
             source={require('../images/logoSustento.jpeg')} />
@@ -150,7 +146,6 @@ export default class user extends Component {
               <Text style={styles.buttonText} onPress={this.login}>Acceder</Text>
             </TouchableOpacity>
           )}
-                  </KeyboardAvoidingView>
       </View>
     )
   }

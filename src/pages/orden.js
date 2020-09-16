@@ -90,18 +90,16 @@ export default class app extends Component{
         if(responseJson === 'Data Matched')
         {
           Toast.show('Aceptado',{duration:Toast.durations.SHORT, backgroundColor:'rgb(52, 52, 52)'});
-
+          this.ordenes();
         }
         else{
         alert(responseJson);
         }
     })
     .catch((error)=>{
-      Toast.show('Aceptado',{duration:Toast.durations.SHORT, backgroundColor:'rgb(52, 52, 52)'});
-      this.props.navigation.navigate('menu')
+     
 });
 }
-
 
 cancelar=(codPedido)=>{
     
@@ -123,15 +121,15 @@ cancelar=(codPedido)=>{
       if(responseJson === 'Data Matched')
       {
         Toast.show('Cancelado',{duration:Toast.durations.SHORT, backgroundColor:'rgb(52, 52, 52)'});
-
+        this.ordenes();
       }
       else{
       alert(responseJson);
       }
   })
   .catch((error)=>{
-    Toast.show('Cancelado',{duration:Toast.durations.SHORT, backgroundColor:'rgb(52, 52, 52)'});
-    this.props.navigation.navigate('menu')
+    console.log(error);
+    
 });
 }
 
@@ -146,43 +144,49 @@ cancelar=(codPedido)=>{
   }
 
   componentDidMount=async()=>{
-      let myArray = await AsyncStorage.getItem('myArray3');
-      let d = JSON.parse(myArray);
-       this.codProveedor=d.codProv;
-       this.setState({ show1: true });
-      {
-        fetch('http://sustento.000webhostapp.com/obtenerPedido.php',{
-          method:'post',
-          header:{
-              'Accept': 'application/json',
-              'Content-type': 'application/json'
-          },
-          body:JSON.stringify({
-              // we will pass our input data to server
-              codProv: this.codProveedor
-          })
-          
-      })
-      .then((response) => response.json())
-      .then((responseJson)=>{
-                    this.setState(
-                      {
-                        dataSource : responseJson,
-                        loading:false
-                      },
-                    function() {
-                     this.arrayholder = responseJson;
-                   }
-                    )
-                   })
-                   .catch((error)=> {
-                     this.setState({error,loading:false})
-                     console.log(error);
-                   })  
-      }
+    this.ordenes();
         
            
   }
+
+ordenes=async()=>{
+  let myArray = await AsyncStorage.getItem('myArray3');
+  let d = JSON.parse(myArray);
+   this.codProveedor=d.codProv;
+   this.setState({ show1: true });
+  {
+    fetch('http://sustento.000webhostapp.com/obtenerPedido.php',{
+      method:'post',
+      header:{
+          'Accept': 'application/json',
+          'Content-type': 'application/json'
+      },
+      body:JSON.stringify({
+          // we will pass our input data to server
+          codProv: this.codProveedor
+      })
+      
+  })
+  .then((response) => response.json())
+  .then((responseJson)=>{
+                this.setState(
+                  {
+                    dataSource : responseJson,
+                    loading:false
+                  },
+                function() {
+                 this.arrayholder = responseJson;
+               }
+                )
+               })
+               .catch((error)=> {
+                 this.setState({error,loading:false})
+                 console.log(error);
+               })  
+  }
+  console.log(this.state.dataSource.getRowCount());
+}
+  
   ShowHideComponent = () => {
     if (this.state.show == true) {
       this.setState({ show: false });
