@@ -34,6 +34,7 @@ export default class Signup extends Component {
   }
   signup = () => {
     const { UserEmail, UserPassword, UserName } = this.state;
+    console.log(UserEmail, UserPassword, UserName );
     fetch('http://sustento.000webhostapp.com/register.php', {
       method: 'post',
       header: {
@@ -42,6 +43,7 @@ export default class Signup extends Component {
       },
       body: JSON.stringify({
         // we will pass our input data to server
+        proveedor:9,
         email: UserEmail,
         password: UserPassword,
         name: UserName,
