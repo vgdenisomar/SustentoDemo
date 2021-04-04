@@ -12,7 +12,8 @@ import {
   TextInput,
   AsyncStorage,
   Button,
-  ToastAndroid
+  ToastAndroidm,
+  Modal,
 } from 'react-native';
 
 import Image from 'react-native-image-progress';  

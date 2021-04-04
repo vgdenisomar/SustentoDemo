@@ -116,26 +116,35 @@ export default class Login extends Component {
       longitud: this.long,
       latitud: this.lat,
     }
+
+    let details = {
+      email: UserEmail,
+      password: UserPassword
+    };
+
+    let formBody = [];
+    for (let property in details) {
+        let encodedKey = encodeURIComponent(property);
+        let encodedValue = encodeURIComponent(details[property]);
+        formBody.push(encodedKey + "=" + encodedValue);
+    }
+    formBody = formBody.join("&");
+  
     AsyncStorage.setItem('myArray3',
       JSON.stringify(myArray3));
-    fetch('http://sustento.000webhostapp.com/sesion.php', {
+      fetch('http://192.168.1.8:3001/api/security/login', {
       method: 'post',
-      header: {
-        'Accept': 'application/json',
-        'Content-type': 'application/json'
+      headers: {
+        'Authorization': 'Bearer token',
+        'Content-type': 'application/x-www-form-urlencoded'
       },
-      body: JSON.stringify({
-        // we will pass our input data to server
-        email: UserEmail,
-        password: UserPassword,
-        lon: this.long,
-        lat: this.lat
-      })
-
+      body: formBody
     })
       .then((response) => response.json())
       .then((responseJson) => {
-        if (responseJson === 'Data Matched') {
+        if (responseJson) {
+          console.log(responseJson.userF);
+          console.log(UserEmail)
           this.setState(
             {
               loading: false
